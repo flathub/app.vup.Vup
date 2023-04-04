@@ -2,6 +2,8 @@ app-id: app.vup.Vup
 runtime: org.freedesktop.Platform
 runtime-version: '22.08'
 sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.vala
 add-extensions:
   org.freedesktop.Platform.ffmpeg-full:
     directory : "lib/ffmpeg"
@@ -9,6 +11,9 @@ add-extensions:
     add-ld-path: .  
 command: vup
 separate-locales: false
+build-options:
+  append-path: /usr/lib/sdk/vala/bin
+  prepend-ld-library-path: /usr/lib/sdk/vala/lib
 finish-args:
 - "--share=ipc"
 - "--socket=fallback-x11"
@@ -21,49 +26,102 @@ finish-args:
 - "--talk-name=org.freedesktop.Notifications"
 - "--filesystem=xdg-run/app/com.discordapp.Discord:create"
 modules:
-- name: libjsoncpp
+- shared-modules/intltool/intltool-0.51.json 
+- name: libdbusmenu-gtk3 # Dependency of libayatana-appindicator
+  buildsystem: autotools
+  build-options:
+    cflags: -Wno-error
+    env:
+      HAVE_VALGRIND_FALSE: "#"
+      HAVE_VALGRIND_TRUE: ""
+  config-opts:
+    - --with-gtk=3
+    - --disable-dumper
+    - --disable-static
+    - --disable-tests
+    - --disable-gtk-doc
+    - --enable-introspection=no
+    - --disable-vala
+  sources:
+    - type: archive
+      url: https://launchpad.net/libdbusmenu/16.04/16.04.0/+download/libdbusmenu-16.04.0.tar.gz
+      sha256: b9cc4a2acd74509435892823607d966d424bd9ad5d0b00938f27240a1bfa878a
+  cleanup:
+    - "/include"
+    - "/libexec"
+    - "/lib/pkgconfig"
+    - "/lib/*.la"
+    - "/share/doc"
+    - "/share/libdbusmenu"
+    - "/share/gtk-doc"
+    - "/share/gir-1.0"
+- name: ayatana-ido
   buildsystem: cmake-ninja
-  config_opts:
-  - -DCMAKE_BUILD_TYPE=Release
-  - -DBUILD_SHARED_LIBS=ON
+  sources:
+  - type: git
+    url: https://github.com/AyatanaIndicators/ayatana-ido.git
+    tag: 0.9.1
+- name: libayatana-indicator
+  buildsystem: cmake-ninja
+  sources:
+  - type: git
+    url: https://github.com/AyatanaIndicators/libayatana-indicator.git
+    tag: 0.9.1
+- name: libayatana-appindicator 
+  buildsystem: cmake-ninja
+  config-opts:
+    - -DENABLE_BINDINGS_MONO=NO
+    - -DENABLE_BINDINGS_VALA=NO
+  sources:
+  - type: git
+    url: https://github.com/AyatanaIndicators/libayatana-appindicator.git
+    tag: 0.5.90
+    
+- name: libjsoncpp
+  only_arches: 
+  - x86_64
+  buildsystem: meson
+  config-opts:
+  - --buildtype=release
+  - --default-library=shared
   sources:
   - type: archive
-    url: https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.7.5.tar.gz
-    sha256: 4338c6cab8af8dee6cdfd54e6218bd0533785f552c6162bb083f8dd28bf8fbbe
+    url: https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.5.tar.gz
+    sha256: f409856e5920c18d0c2fb85276e24ee607d2a09b5e7d5f0a371368903c275da2
 - name: libsodium
   buildsystem: autotools
   sources:
   - type: archive
     url: https://github.com/jedisct1/libsodium/archive/refs/tags/1.0.18-RELEASE.tar.gz
     sha256: b7292dd1da67a049c8e78415cd498ec138d194cfdb302e716b08d26b80fecc10
-- shared-modules/intltool/intltool-0.51.json 
 - shared-modules/libappindicator/libappindicator-gtk3-introspection-12.10.json
 - shared-modules/libsecret/libsecret.json
 - name: vup
   buildsystem: simple
   build-commands:
-  - unzip Vup-0.12.0-BETA-Linux.zip -d build
   - install -d /app/Vup
   - cp -r build/* /app/Vup
   - chmod +x /app/Vup/vup
   - mkdir -p /app/bin
   - ln -s /app/Vup/vup /app/bin/vup
-  - install -Dm644 icon.svg /app/share/icons/hicolor/scalable/apps/app.vup.Vup.svg
+  - install -Dm644 icon.svg /app/share/icons/hicolor/scalable/apps/app.vup.Vup.png
   - install -Dm644 app.vup.Vup.desktop -t /app/share/applications/
   - install -Dm644 app.vup.Vup.metainfo.xml -t /app/share/metainfo/
   post-install:
   - "mkdir -p ${FLATPAK_DEST}/lib/ffmpeg"
   sources:
   - type: file
-    path: icon.svg
+    url: https://raw.githubusercontent.com/redsolver/vup/main/linux/metadata/icon.svg
+    sha256: d60e8e2f3a1978dd42a297653bae4c4844cb54c2631a311e6628ff8f9b4b841c
   - type: file
-    path: app.vup.Vup.metainfo.xml
+    url: https://raw.githubusercontent.com/redsolver/vup/main/linux/metadata/app.vup.Vup.metainfo.xml
+    sha256: aac48ea898d5f419d8ec77aef573e1e24df3e7196133bd07bb118f8a6b675cae
   - type: file
-    path: app.vup.Vup.desktop
-  - type: file
+    url: https://raw.githubusercontent.com/redsolver/vup/main/linux/metadata/app.vup.Vup.desktop
+    sha256: 7c9d5998eeb36f5565f26e2d26da31f290a6c1684dcdaea52cfcf4312c65973f
+  - type: archive
+    dest: build
     only-arches:
           - x86_64
-    url: https://github.com/redsolver/vup/releases/download/v0.12.0/Vup-0.12.0-BETA-Linux.zip
-    sha256: db6bae656ec34a62bced238d4769ea9d6d5fbe97594ea24022f466606aabe8f8
-
-
+    url: https://github.com/redsolver/vup/releases/download/v0.13.3/Vup-0.13.3-BETA-Linux.zip
+    sha256: f68bd5b17da4c2bd11855fa1da5f714272dd6b6085f4e9724a1880de6f946d0a
