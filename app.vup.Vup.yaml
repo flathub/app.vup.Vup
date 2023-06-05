@@ -123,5 +123,5 @@ modules:
     dest: build
     only-arches:
           - x86_64
-    url: https://github.com/vup-app/vup/releases/download/v0.13.3/Vup-0.13.3-BETA-Linux.zip
-    sha256: f68bd5b17da4c2bd11855fa1da5f714272dd6b6085f4e9724a1880de6f946d0a
+    url: https://github.com/vup-app/vup/releases/download/v0.14.0/Vup-0.14.0-BETA-Linux.zip
+    sha256: 7fe09ff4a5b083fe1d79d1fcee9956cbda970206595f3024acb39421ebbd4ef8
