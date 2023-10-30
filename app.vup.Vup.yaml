@@ -115,7 +115,7 @@ modules:
     sha256: d60e8e2f3a1978dd42a297653bae4c4844cb54c2631a311e6628ff8f9b4b841c
   - type: file
     url: https://raw.githubusercontent.com/redsolver/vup/main/linux/metadata/app.vup.Vup.metainfo.xml
-    sha256: 869f7992fec2f452ea8c57c044195c6ce03e32c0036cb66090806a1e1fb6a71b
+    sha256: faf93143006f8976efb177ada3934f70a2e20c83815bebe595d01547369797b6
   - type: file
     url: https://raw.githubusercontent.com/redsolver/vup/main/linux/metadata/app.vup.Vup.desktop
     sha256: 7c9d5998eeb36f5565f26e2d26da31f290a6c1684dcdaea52cfcf4312c65973f
@@ -123,5 +123,5 @@ modules:
     dest: build
     only-arches:
           - x86_64
-    url: https://github.com/vup-app/vup/releases/download/v0.14.3/Vup-0.14.3-BETA-Linux.zip
-    sha256: ba164977bfe522f404a80376bf5d790ffcc216a6190adc3cf0f0a4850a3942c4
+    url: https://github.com/vup-app/vup/releases/download/v0.15.0/Vup-0.15.0-BETA-Linux.zip
+    sha256: 44b190ecf3d39e796cc7252db61cc60619ac4add832be07055c80ee4b494970f
